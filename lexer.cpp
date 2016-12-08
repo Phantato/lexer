@@ -4,6 +4,88 @@
 #include <string>
 using namespace std;
 
+int charencode(char ch)
+{
+    if(ch>='a' && ch <= 'z')
+    {
+        return ch-'a';
+    }
+    else if(ch >= 'A' && ch <= 'Z')
+    {
+        return 25 + ch - 'A';
+    }
+    else if(ch >= '0' && ch <= '9')
+    {
+        return 51 + ch - '0';
+    }
+    else if(ch == '_')
+    {
+        return 62;
+    }
+    else
+    {
+        return 63;
+    }
+}
+tuple<int, string> character(ifstream &fin, int &row, int &col)
+{
+	char ch;
+    int stat=0;
+	tuple<int, string> tup;
+    int DFA[15][63], i, j;
+    for(i = 0; i < 15; i++)
+    {
+        for(j = 0; j < 63; j++)
+        {
+            DFA[i][j] = 14;
+        }
+    }
+    DFA[0]['i'-'a'] = 1;
+    DFA[1]['f'-'a'] = 2;
+    DFA[1]['n'-'a'] = 3;
+    DFA[3]['t'-'a'] = 4;
+    DFA[0]['w'-'a'] = 5;
+    DFA[5]['h'-'a'] = 6;
+    DFA[6]['i'-'a'] = 7;
+    DFA[7]['l'-'a'] = 8;
+    DFA[8]['e'-'a'] = 9;
+    DFA[0]['e'-'a'] = 10;
+    DFA[10]['l'-'a'] = 11;
+    DFA[11]['s'-'a'] = 12;
+    DFA[12]['e'-'a'] = 13;
+	get<1>(tup).clear();
+	ch = fin.get();
+    while(fin.good() && (i = charencode(ch)) != 63)
+    {
+        stat = DFA[stat][i];
+        get<1>(tup) += ch;
+    	ch = fin.get();
+        col++;
+    }
+    switch (stat)
+    {
+        case 2:
+            get<0>(tup) = 31;
+        	get<1>(tup).clear();
+            break;
+        case 4:
+            get<0>(tup) = 32;
+            get<1>(tup).clear();
+            break;
+        case 9:
+            get<0>(tup) = 33;
+            get<1>(tup).clear();
+            break;
+        case 13:
+            get<0>(tup) = 34;
+            get<1>(tup).clear();
+            break;
+        default :
+            get<0>(tup) = 0;
+    }
+    return tup;
+}
+
 tuple<int, string> lexer(ifstream &fin, int &row, int &col)
 {
 	char ch;
@@ -22,16 +104,11 @@ tuple<int, string> lexer(ifstream &fin, int &row, int &col)
 		row++;
 		col = 1;
 	}
-	else if((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))
+	else if((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_')
 	// lable
 	{
-		get<0>(tup) = 0;
-		while(fin.good() && (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '_')
-		{
-			get<1>(tup) += ch;
-			ch = fin.get();
-			col++;
-		}
+        fin.seekg(-1, fin.cur);
+        tup = character(fin, row, col);
 		fin.seekg(-1, fin.cur);
 		col--;
 	}
@@ -328,7 +405,9 @@ int main()
 {
 	string filename;
 	ifstream fin;
-	int row, col;
+    int row, col;
+    // character(fin,row,col);
+    // return 0;
 	row = 1;
 	col = 1;
 	tuple<int, string> tup;
@@ -349,7 +428,7 @@ int main()
 	}
 	while(fin.good())
 	{
-		cout<<get<0>(tup)<<"->"<<get<1>(tup)<<'\n';
+		cout<<'<'<<get<0>(tup)<<','<<get<1>(tup)<<">\n";
 		tup = lexer(fin, row, col);
         if(get<0>(tup) == -2)
         {

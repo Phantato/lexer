@@ -405,14 +405,24 @@ int main()
 {
 	string filename;
 	ifstream fin;
+    ofstream fout;
     int row, col;
     // character(fin,row,col);
     // return 0;
 	row = 1;
 	col = 1;
 	tuple<int, string> tup;
+    cout<<"Open File:"<<endl;
 	cin>>filename;
-	fin.open(filename);
+    fin.open(filename);
+    if(fin.fail())
+    {
+        cout<<"Unable to Open this File!"<<endl;
+        return 0;
+    }
+    cout<<"Print to File:"<<endl;
+    cin>>filename;
+    fout.open(filename);
 	tup = lexer(fin, row, col);
     if(get<0>(tup) == -2)
     {
@@ -429,10 +439,12 @@ int main()
 	while(fin.good())
 	{
 		cout<<'<'<<get<0>(tup)<<','<<get<1>(tup)<<">\n";
+        fout<<'<'<<get<0>(tup)<<','<<get<1>(tup)<<'>';
 		tup = lexer(fin, row, col);
         if(get<0>(tup) == -2)
         {
             cout<<"Error at "<<filename<<' '<<row<<':'<<col<<endl;
+            fout<<"\n!\n";
         }
         while(fin.good() && (get<0>(tup) == -1 || get<0>(tup) == -2))
         {
@@ -440,8 +452,10 @@ int main()
             if(get<0>(tup) == -2)
             {
                 cout<<"Error at "<<filename<<' '<<row<<':'<<col<<endl;
+                fout<<"\n!\n";
             }
         }
 	}
+    fout.close();
 	return 0;
 }

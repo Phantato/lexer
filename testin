@@ -1,0 +1,22 @@
+#include <stdio.h>
+
+main(){
+    int _i1 = 0;
+    while(i < 10)
+    {
+        printf("%d\n", _i1);
+        _i1++;
+    }
+    if(_i1 > 10)
+    {
+        printf("RED")<endl;
+    }
+    else if(_i1 == 10)
+    {
+        printf("YELLOW")<<endl;
+    }
+    else
+    {
+        printf('GREEN')<<endl;
+    }
+}
